@@ -2,6 +2,7 @@
 layout: post
 title: "DLL Injection: A Comprehensive Security Perspective"
 tags: [windows, security, dll]
+published: false # WIP — set to true (or remove this line) to publish
 ---
 
 I created this short paper to sumerize my knowledge about DLL and DLL Injection in one place. Its much easier to exploit something from time to time when you don't have to remind every detail again and agian :). There is no fancy stuff, the idea was to create general guide to help myself when I came across DLL Injection in the future. 
