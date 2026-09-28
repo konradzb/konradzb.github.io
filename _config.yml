@@ -1,17 +1,28 @@
 title: KonradZ
-author: Abhinav Saxena
-url: https://www.abhinavsaxena.com/moonwalk # root address of the site
+author: Konrad Zbylut
+url: https://konradzb.github.io # root address of the site
+baseurl: "" # site served from the domain root
 description: > # description of the site (multiple lines allowed)
-  Security Researcher 
+  Technical notes on Windows internals, security research and offensive tooling.
 
 favicon: "./logo.png" # relative path to site's favicon
 
-twitter:
-    username: abhinav # update or delete this
-    card: summary_large_image
+# Theme files are vendored in this repo (_layouts, _includes, _sass, assets)
+# and used directly, so no `theme:`/`remote_theme:` key is needed.
 
-#theme: moonwalk # if you are using GitHub Pages, change it to remote_theme: abhinavs/moonwalk
-remote_theme: abhinavs/moonwalk
+# Files that belong to the repo/theme but should not be published as pages.
+exclude:
+  - README.md
+  - github_pages.md
+  - moonwalk_on_windows.md
+  - Gemfile
+  - Gemfile.lock
+  - moonwalk.gemspec
+  - LICENSE.txt
+  - bin
+  - vendor
+  - draft-backup.md
+  - image.png
 
 theme_config:
   appearance: "dark" # can be "light", "dark" or "auto"
@@ -23,9 +34,9 @@ theme_config:
   show_footer: true # show footer links in home page,add in _data/home.yml
   show_copyright: true # show copyright notice in footer
   # following keys are using to create home layout
-  show_projects: true # show projects as cards, add in _data/home.yml
+  show_projects: false # show projects as cards, add in _data/home.yml
   show_blog: true # show blog posts added in _posts
-  show_old_projects: true # show old projects as cards, add in _data/home.yml
+  show_old_projects: false # show old projects as cards, add in _data/home.yml
   show_misc_list: false # show generic vertical list for misc details, add _data/home.yml
   show_reading_time: true # show number of words and reading time in the blog posts
   show_tags: true # show tags in a blog posts

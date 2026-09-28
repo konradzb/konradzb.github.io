@@ -1,10 +1,8 @@
 ---
 layout: post
-tags: [soopr, config]
+title: "DLL Injection: A Comprehensive Security Perspective"
+tags: [windows, security, dll]
 ---
-
-
-# DLL Injection: A Comprehensive Security Perspective
 
 I created this short paper to sumerize my knowledge about DLL and DLL Injection in one place. Its much easier to exploit something from time to time when you don't have to remind every detail again and agian :). There is no fancy stuff, the idea was to create general guide to help myself when I came across DLL Injection in the future. 
 
@@ -19,7 +17,7 @@ Applications can be devided into multiple modules, each module have its seperate
 Structure of Portable Executable (PE) is quite complicated and I am not going to copy the inforamtion from oficial microsoft website, you can find [more information there](https://learn.microsoft.com/en-us/windows/win32/debug/pe-format). 
 Great visualization was done in the picture below, where simple.exe was described, however the structure is similar to the DLL file 
 
-![pic](../_screenshots/pe101.png)
+![pic](/images/pe101.png)
 
 Understading of how the PE format is build and works is whole other topic. 0xRick on his blog explained in details how PE format is stucture so you can find more information there - [Dive into PE Format](https://0xrick.github.io/win-internals/pe1/)
 
@@ -38,7 +36,7 @@ while (true) {
 In `LoadLibraryA` path to DLL is not provided, just name of the DLL, so the application will search in the current directory. Another way to specify targeted DLL is to specify the whole path, e.g. `C:\Temp\vulnerable.dll`. How is it done depends on the application.
 
 When the program was compiled successfuly, it was added as new service:
-![new service](../_screenshots/service-create.png)
+![new service](/images/service-create.png)
 
 ### 2.1 Process Monitor (Procmon)
 
@@ -49,7 +47,7 @@ Procmon captures all events that happens on the system, which can be overlaming 
 
 Moving on into the ProcMon itself, when first time open up, it starts printing thounsds of events every second. To lower that number we can use filters and only target the binary (Process Name) we want to see. 
 
-![filters](../_screenshots/procmon1.1.png)
+![filters](/images/procmon1.1.png)
 
 As you can see I already added one more filter, it cuts the results to only those "NAME NOT FOUND", which means that it will display rows where file was not found in the selected directory.
 
@@ -75,7 +73,7 @@ The process's current directory (which might be different from the app directory
 6. PATH Environment Variable
 All directories listed in the system's %PATH% variable, searched in the order they appear.
 
-![search order](../_screenshots/search4.png)
+![search order](/images/search4.png)
 
 The search stops imiditly, when application finds the desired DLL. Looking at the list above, most often normal user will not have write permissions on both System Directories, nor C:\Windows, so the best shot is Application's Directory, Current Working Directory if it is different then others and PATH. 
 In this example, the service was created in the C:\Windows\System32 directory, so the Current Working Directory is set to that value. 
@@ -105,14 +103,14 @@ New user profiles are initialized from the **Default User** profile (`C:\Users\D
 
 These two parts are merged by Windows to form the complete PATH for that user's session.
 
-![path](../_screenshots/pathh.png)
+![path](/images/pathh.png)
 
 
 ### 2.2 Process Explorer
 
 **Process Explorer**, another Sysinternals tool, provides a hierarchical view of running processes with detailed information about loaded DLLs and open files. Process Explorer does not provide information about every try of loading DLL binary and because of this we will stick to the **Process monitor**
 
-![process explorer](../_screenshots/procexplorer.png)
+![process explorer](/images/procexplorer.png)
 
 
 ---
@@ -121,7 +119,7 @@ These two parts are merged by Windows to form the complete PATH for that user's 
 Before we dive into execution of DLL Injection itself, we will need our malicious DLL, which will be executed during the attack. There are many different aproches on to how to generate that DLL, but for now we will stick to the most basic one. 
 Open Visual Studio and create new DLL project.
 
-![new custom DLL](../_screenshots/new-dll-project.png)
+![new custom DLL](/images/new-dll-project.png)
 
 This DLL will fire up new CMD process 
 ---
@@ -141,19 +139,19 @@ The DLL injection process follows a systematic approach:
 1. **Process Identification**: Using Process Monitor identify which process you want to target. In this case we already have choseen service - `vuln-service.exe` but during regular audit, you want to take your time during that phase. More info about this in #TODO
 
 2. **Process loads DLL**: Wiemy w jaką aplikacje chcemy celować, więc w ProcMon zawężamy scope tylko do tego procesu i patrzymy z jakich ścieżek próbuje łądować DLL.
-![DLL from vulnerable service](../_screenshots/procmon2.png)
+![DLL from vulnerable service](/images/procmon2.png)
 
 Chcemy targtować tylko pliki DLL, dlatego w filtrach można zawęzić wyświetlanie rekordów tylko do tych, gdzie Path kończy sie na ".dll". 
-![Only DLLs](../_screenshots/procmon3.png)
+![Only DLLs](/images/procmon3.png)
 
 
 3. **Path identification**: Jako zwykli użytkownicy nie mamy zapisu w ścieżkach jak `C:\Windows\*` czy `C:\Program Files\*`, zakładając oczywiście, że nikt na systemie nie edytował domyślnych ustawień. Dlatego z powyższych rekordów najwięcej nadzieje daje ten `C:\Temp`, który nie istnieje domyślnie na systemie, dlatego daje nadzieje na podatną konfiguracje.
 
-![C:\Temp permissions](../_screenshots/permissions.png)
+![C:\Temp permissions](/images/permissions.png)
 
 Każdy zalogowany członek systemu jest w grupie Authenticated Users, oznacza to że jako nisko uprzywilijowany użytkownik mamy możliwość zapisu w podanej ścieżce.
 
-![Authenticated Users Group confirmation](../_screenshots/permissions2.png)
+![Authenticated Users Group confirmation](/images/permissions2.png)
 
 Na tym etapie wiemy już że podatność występuje, mamy potwierdzenie że wysoko uprziwilejowany process próbuje ładować plik DLL ze ścieżki nad którą niskouprziwlejowany użytkownik ma kontrolę. Teraz potrzebujemy tylko przygotować PoC eskalacji uprawnień, to znaczy stworzyć złośliwy plik DLL i wstawić go w odpowiednie miejsce.
 
